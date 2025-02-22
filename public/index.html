@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Events</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --text-color: #1f2937;
+            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --card-radius: 16px;
+            --bg-color: #f8fafc;
+            --section-bg: #ffffff;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            padding: 16px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 16px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        h1 {
+            margin: 24px 0 32px;
+            color: var(--text-color);
+            font-size: clamp(24px, 4vw, 32px);
+            text-align: center;
+            position: relative;
+            padding-bottom: 12px;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        .date-section {
+            background: var(--section-bg);
+            margin: 24px 0;
+            padding: clamp(16px, 3vw, 24px);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            transform-origin: top;
+            animation: slideDown 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        .event-card {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            padding: clamp(20px, 3vw, 28px);
+            margin: 20px 0;
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            position: relative;
+            transition: var(--transition);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .event-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-color);
+            transform: scaleY(0);
+            transition: var(--transition);
+            transform-origin: bottom;
+        }
+
+        .event-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--card-shadow);
+        }
+
+        .event-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .event-avatar {
+            width: clamp(70px, 12vw, 90px);
+            height: clamp(70px, 12vw, 90px);
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            position: relative;
+            box-shadow: 0 0 0 4px var(--border-color);
+            transition: var(--transition);
+        }
+
+        .event-avatar::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 2px solid var(--primary-color);
+            opacity: 0;
+            transform: scale(1.2);
+            transition: var(--transition);
+        }
+
+        .event-card:hover .event-avatar::after {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .event-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .event-avatar:hover img {
+            transform: scale(1.15);
+        }
+
+        .event-details {
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .event-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .event-title {
+            font-size: clamp(20px, 3vw, 26px);
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 12px;
+            line-height: 1.3;
+            transition: var(--transition);
+        }
+
+        .event-card:hover .event-title {
+            color: var(--primary-color);
+        }
+
+        .event-time {
+            color: #64748b;
+            font-size: clamp(14px, 2vw, 16px);
+            line-height: 1.6;
+            position: relative;
+            padding-left: 24px;
+        }
+
+        .event-time::before {
+            content: '🗓';
+            position: absolute;
+            left: 0;
+            opacity: 0.8;
+        }
+
+        .enroll-button {
+            position: absolute;
+            right: clamp(20px, 3vw, 28px);
+            bottom: clamp(20px, 3vw, 28px);
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: clamp(14px, 2vw, 16px);
+            transition: var(--transition);
+            white-space: nowrap;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .enroll-button::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--primary-hover);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease;
+            z-index: -1;
+        }
+
+        .enroll-button:hover::before {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .enroll-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .loading {
+            text-align: center;
+            padding: clamp(32px, 5vw, 48px);
+            font-size: clamp(16px, 3vw, 20px);
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #e2e8f0;
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Dropdown styles */
+        .event-filter {
+            margin: 0 auto 32px;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .event-select {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background-color: white;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: var(--transition);
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .event-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .event-filter::after {
+            content: '▼';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            pointer-events: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .event-card {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                padding-bottom: 80px;
+            }
+
+            .event-avatar {
+                margin: 0;
+                width: 120px;
+                height: 120px;
+            }
+
+            .event-header {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .event-time {
+                padding-left: 0;
+                padding-top: 24px;
+            }
+
+            .event-time::before {
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .enroll-button {
+                width: calc(100% - 40px);
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+            }
+
+            .container {
+                padding: 0 8px;
+            }
+
+            .date-section {
+                margin: 16px 0;
+                padding: 16px;
+            }
+
+            .event-card {
+                padding: 20px;
+                margin: 12px 0;
+            }
+
+            .enroll-button {
+                position: relative;
+                width: 100%;
+                margin-top: 24px;
+                right: 0;
+                bottom: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calendar Events</h1>
+        <div class="event-filter">
+            <select id="event-select" class="event-select">
+                <option value="all">All Events</option>
+            </select>
+        </div>
+        <div id="events-container">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                Loading events
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allEventsData = null;
+
+        function getRandomImage() {
+            const gender = Math.random() > 0.5 ? 'women' : 'men';
+            const randomNum = Math.floor(Math.random() * 100);
+            return `https://randomuser.me/api/portraits/${gender}/${randomNum}.jpg`;
+        }
+
+        async function fetchEvents() {
+            try {
+                const response = await fetch('http://localhost:4567/api/calendar/events');
+                const data = await response.json();
+                
+                // If not authenticated, automatically redirect to auth URL
+                if (!data.success && data.authUrl) {
+                    window.location.href = data.authUrl;
+                    return;
+                }
+
+                allEventsData = data;
+
+                // Populate dropdown
+                const eventSelect = document.getElementById('event-select');
+                eventSelect.innerHTML = '<option value="all">All Events</option>';
+                
+                if (data.allEvents) {
+                    data.allEvents.forEach(event => {
+                        const option = document.createElement('option');
+                        option.value = event.id;
+                        option.textContent = event.title;
+                        eventSelect.appendChild(option);
+                    });
+                }
+
+                displayEvents(data);
+            } catch (error) {
+                console.error('Error fetching events:', error);
+                document.getElementById('events-container').innerHTML = 
+                    '<div class="date-section">Error loading events. Please try again later.</div>';
+            }
+        }
+
+        function displayEvents(data, selectedEventId = 'all') {
+            const container = document.getElementById('events-container');
+            container.innerHTML = '';
+
+            if (data.success && data.eventsByDate) {
+                const sortedDates = Object.keys(data.eventsByDate).sort((a, b) => 
+                    new Date(a) - new Date(b)
+                );
+
+                sortedDates.forEach((date, index) => {
+                    let events = data.eventsByDate[date];
+                    
+                    // Filter events if a specific event is selected
+                    if (selectedEventId !== 'all') {
+                        events = events.filter(event => event.id === selectedEventId);
+                        if (events.length === 0) return;
+                    }
+
+                    const dateSection = document.createElement('div');
+                    dateSection.className = 'date-section';
+                    dateSection.style.animationDelay = `${index * 0.1}s`;
+
+                    events.forEach((event, eventIndex) => {
+                        const eventCard = document.createElement('div');
+                        eventCard.className = 'event-card';
+                        eventCard.style.animationDelay = `${(index * 0.1 + eventIndex * 0.1)}s`;
+
+                        const startDate = new Date(event.startTime);
+                        const endDate = new Date(event.endTime);
+                        
+                        const formattedDate = `${startDate.toLocaleDateString('en-US', { 
+                            weekday: 'short', 
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                        })} - ${endDate.toLocaleDateString('en-US', {
+                            weekday: 'short',
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                        })}`;
+
+                        const formattedTime = `${startDate.toLocaleTimeString('en-US', { 
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })} - ${endDate.toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })} (GMT+5)`;
+
+                        eventCard.innerHTML = `
+                            <div class="event-avatar">
+                                <img src="${getRandomImage()}" alt="Speaker" loading="lazy">
+                            </div>
+                            <div class="event-details">
+                                <div class="event-header">
+                                    <div>
+                                        <div class="event-title">${event.title}</div>
+                                        <div class="event-time">${formattedDate}<br>${formattedTime}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="#" class="enroll-button">ENROLL NOW →</a>
+                        `;
+
+                        dateSection.appendChild(eventCard);
+                    });
+
+                    if (dateSection.children.length > 0) {
+                        container.appendChild(dateSection);
+                    }
+                });
+            } else {
+                container.innerHTML = '<div class="date-section">No events found</div>';
+            }
+        }
+
+        // Event listener for dropdown changes
+        document.getElementById('event-select').addEventListener('change', (e) => {
+            if (allEventsData) {
+                displayEvents(allEventsData, e.target.value);
+            }
+        });
+
+        // Fetch events when page loads
+        fetchEvents();
+
+        // Refresh events every 5 minutes
+        setInterval(fetchEvents, 300000);
+    </script>
+</body>
+</html> 
