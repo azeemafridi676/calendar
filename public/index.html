@@ -394,7 +394,7 @@
 
         async function fetchEvents() {
             try {
-                const response = await fetch('http://localhost:4567/api/calendar/events');
+                const response = await fetch('https://calendar-two-ashen.vercel.app/api/calendar/events');
                 const data = await response.json();
                 
                 // If not authenticated, automatically redirect to auth URL
